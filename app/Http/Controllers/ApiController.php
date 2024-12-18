@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Teacher;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 
@@ -280,6 +284,113 @@ class ApiController extends Controller
             return $instructors;
         }
     }
+
+    public function getPlanningProf($sessionId)
+    {
+        // Vérifier si l'utilisateur est connecté
+        $user = Auth::user();
+        if (!$user) {
+            abort(403, 'Utilisateur non connecté.');
+        }
+
+        // Récupérer le professeur associé à l'utilisateur
+        $teacher = Teacher::where('user_id', $user->id)->first();
+
+        if (!$teacher || !$teacher->professor_id) {
+            abort(404, 'Aucun identifiant de professeur trouvé pour cet utilisateur.');
+        }
+
+        $professorId = $teacher->professor_id;
+
+        // Définir le début de l'année scolaire au 19 août
+        $startSchoolYear = now()->year . '-08-19';
+        $startSchoolYear = Carbon::parse($startSchoolYear);
+
+        // Calculer la semaine de cours relative à la date de début de l'année scolaire
+        $currentWeek = $startSchoolYear->diffInWeeks(now(), false) + 1;
+
+        // Assurer que la semaine courante commence à 1, même avant le 19 août
+        $currentWeek = max(1, intval($currentWeek));
+
+
+        // Construire l'URL pour récupérer les événements
+        $this->getUrlBase(); // Appel de la fonction de base pour obtenir l'URL
+        $this->addFunction('getEvents');
+        $this->addElementUrl('sessionId', $sessionId); // Ajouter l'ID de la session
+        $this->addElementUrl('resources', $professorId); // Ajouter l'ID du professeur
+        $this->addElementUrl('weeks', $currentWeek); // Ajouter la semaine actuelle
+        $this->addElementUrl('detail', '8'); // Ajouter le détail des événements
+
+        // Récupérer la réponse de l'API
+        $url = $this->getUrl();
+        $response = file_get_contents($url);
+        $retour = simplexml_load_string($response);
+
+        // Vérifier si l'API a renvoyé une erreur
+        if (isset($retour->error)) {
+            dd('Erreur de l\'API : ' . (string)$retour->error['name']);
+        }
+
+        // Initialiser le tableau des événements
+        $events = [];
+
+        // Extraire les événements à partir de la réponse
+        foreach ($retour->event as $event) {
+            $events[] = [
+                'id' => (string) $event['id'],  // Accéder à l'attribut 'id'
+                'name' => (string) $event['name'],  // Accéder à l'attribut 'name'
+                'date' => (string) $event['date'],  // Accéder à l'attribut 'date'
+                'startHour' => (string) $event['startHour'],  // Accéder à l'attribut 'startHour'
+                'endHour' => (string) $event['endHour'],  // Accéder à l'attribut 'endHour'
+                'day' => (string) $event['day'],  // Accéder à l'attribut 'endHour'
+            ];
+        }
+
+        // Si aucun événement n'a été trouvé, retourner un tableau vide
+        if (empty($events)) {
+            return [];
+        }
+
+        usort($events, function ($a, $b) {
+            // Assurez-vous que les dates sont au format ISO (YYYY-MM-DD)
+            $dateA = DateTime::createFromFormat('d/m/Y', $a['date']) ?: new DateTime($a['date']);
+            $dateB = DateTime::createFromFormat('d/m/Y', $b['date']) ?: new DateTime($b['date']);
+
+            $dateTimeA = $dateA->format('Y-m-d') . ' ' . $a['startHour'];
+            $dateTimeB = $dateB->format('Y-m-d') . ' ' . $b['startHour'];
+
+            return strtotime($dateTimeA) - strtotime($dateTimeB);
+        });
+
+        return $events;
+    }
+
+    public function getEventPlanningId($sessionId, $eventId)
+    {
+
+        // Définir le début de l'année scolaire au 19 août
+        $startSchoolYear = now()->year . '-08-19';
+        $startSchoolYear = Carbon::parse($startSchoolYear);
+
+        // Calculer la semaine de cours relative à la date de début de l'année scolaire
+        $currentWeek = $startSchoolYear->diffInWeeks(now(), false) + 1;
+
+        // Assurer que la semaine courante commence à 1, même avant le 19 août
+        $currentWeek = max(1, intval($currentWeek));
+
+
+        // Construire l'URL pour récupérer les événements
+        $this->getUrlBase(); // Appel de la fonction de base pour obtenir l'URL
+        $this->addFunction('getEvents');
+        $this->addElementUrl('sessionId', $sessionId); // Ajouter l'ID de la session
+        $this->addElementUrl('eventId', $eventId); // Ajouter l'ID du professeur
+        $this->addElementUrl('weeks', $currentWeek); // Ajouter la semaine actuelle
+        $this->addElementUrl('detail', '8'); // Ajouter le détail des événements
+
+    }
+
+
+
 
 
 

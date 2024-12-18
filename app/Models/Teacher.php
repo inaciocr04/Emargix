@@ -11,6 +11,8 @@ class Teacher extends Model
     /** @use HasFactory<\Database\Factories\TeacherFactory> */
     use HasFactory;
 
+    protected $table = 'teachers';
+
     protected $fillable = [
         'name',
         'email',
@@ -20,5 +22,15 @@ class Teacher extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function attendanceForms()
+    {
+        return $this->hasMany(AttendanceForm::class);
+    }
+
+    public function signatures()
+    {
+        return $this->hasMany(TeacherSignature::class);
     }
 }

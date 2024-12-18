@@ -9,4 +9,11 @@ class Student extends Model
 {
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
+
+    protected $table = 'students';
+
+    public function signatures()
+    {
+        return $this->hasMany(StudentSignature::class);
+    }
 }

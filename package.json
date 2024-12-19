@@ -22,5 +22,23 @@
         "instascan": "^1.0.0",
         "vite-plugin-node-polyfills": "^0.19.0",
         "webrtc-adapter": "^9.0.1"
-    }
+    },
+    "name": "emargix",
+    "version": "1.0.0",
+    "description": "<p align=\"center\"><a href=\"https://laravel.com\" target=\"_blank\"><img src=\"https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg\" width=\"400\" alt=\"Laravel Logo\"></a></p>",
+    "main": "postcss.config.js",
+    "directories": {
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/inaciocr04/Emargix.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/inaciocr04/Emargix/issues"
+    },
+    "homepage": "https://github.com/inaciocr04/Emargix#readme"
 }

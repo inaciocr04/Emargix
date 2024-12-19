@@ -336,6 +336,20 @@ class ApiController extends Controller
 
         // Extraire les événements à partir de la réponse
         foreach ($retour->event as $event) {
+            $trainees = [];
+            $classrooms = [];
+
+            foreach ($event->resources->resource as $resource) {
+                $category = (string) $resource['category'];
+                $name = (string) $resource['name'];
+
+                if ($category === 'trainee') {
+                    $trainees[] = $name;
+                } elseif ($category === 'classroom') {
+                    $classrooms[] = $name;
+                }
+            }
+
             $events[] = [
                 'id' => (string) $event['id'],  // Accéder à l'attribut 'id'
                 'name' => (string) $event['name'],  // Accéder à l'attribut 'name'
@@ -343,6 +357,8 @@ class ApiController extends Controller
                 'startHour' => (string) $event['startHour'],  // Accéder à l'attribut 'startHour'
                 'endHour' => (string) $event['endHour'],  // Accéder à l'attribut 'endHour'
                 'day' => (string) $event['day'],  // Accéder à l'attribut 'endHour'
+                'trainees' => $trainees, // Ajouter les trainees
+                'classrooms' => $classrooms, // Ajouter les classrooms
             ];
         }
 

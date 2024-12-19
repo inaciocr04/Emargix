@@ -11,9 +11,20 @@ class AttendanceForm extends Model
 
     protected $table = 'attendance_forms';
 
+    protected $fillable = [
+        'event_id',
+        'event_name',
+        'event_date',
+        'form_unique_code',
+    ];
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
     }
 
     public function studentSignatures()

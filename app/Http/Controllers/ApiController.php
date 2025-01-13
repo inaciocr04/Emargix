@@ -242,7 +242,7 @@ class ApiController extends Controller
             $this->addElementUrl("category", "instructor");
             $this->addElementUrl('sessionId', $sessionId);
             $this->addElementUrl('jobCategory', 'IHA');
-            $this->addElementUrl('detail', '2');
+            $this->addElementUrl('detail', '6');
 
             $retour = Http::withBasicAuth($this->getProxyLogin(), $this->getProxyMdp())->get($this->url);
 
@@ -303,15 +303,20 @@ class ApiController extends Controller
         $professorId = $teacher->professor_id;
 
         // Définir le début de l'année scolaire au 19 août
-        $startSchoolYear = now()->year . '-08-19';
-        $startSchoolYear = Carbon::parse($startSchoolYear);
+        $currentYear = now()->year;
 
+        // Définir la date de début de l'année scolaire comme étant le 19 août de l'année en cours
+        $startSchoolYear = Carbon::create($currentYear, 8, 19);
+
+        // Si la date actuelle est avant le 19 août de l'année en cours, on prend le 19 août de l'année précédente
+        if (now()->lessThan($startSchoolYear)) {
+            $startSchoolYear = Carbon::create($currentYear - 1, 8, 19);
+        }
         // Calculer la semaine de cours relative à la date de début de l'année scolaire
         $currentWeek = $startSchoolYear->diffInWeeks(now(), false) + 1;
 
         // Assurer que la semaine courante commence à 1, même avant le 19 août
         $currentWeek = max(1, intval($currentWeek));
-
 
         // Construire l'URL pour récupérer les événements
         $this->getUrlBase(); // Appel de la fonction de base pour obtenir l'URL
@@ -405,6 +410,65 @@ class ApiController extends Controller
 
     }
 
+    public function getAllTraining($sessionId)
+    {
+        if (config('ade.useProxy')) {
+            $this->getUrlProxyBase();
+            $this->addFunction("getResources");
+            $this->addElementUrl("category", "trainee");
+            $this->addElementUrl('sessionId', $sessionId);
+            $this->addElementUrl('jobCategory', 'IHA');
+            $this->addElementUrl('detail', '9'); // Niveau de détail ajusté
+
+            $retour = Http::withBasicAuth($this->getProxyLogin(), $this->getProxyMdp())->get($this->url);
+
+            if ($retour->successful()) {
+                // Conversion de la réponse JSON en tableau associatif
+                $data = $retour->json();
+
+                // S'assurer que la clé 'trainee' existe et qu'il contient un tableau
+                if (isset($data['trainee']) && is_array($data['trainee'])) {
+                    // Filtrer les trainees avec lastSlot != -1
+                    return array_map(function($trainee) {
+                        return [
+                            'id' => $trainee['id'],
+                            'name' => $trainee['name'],
+                        ];
+                    }, array_filter($data['trainee'], function($trainee) {
+                        return isset($trainee['lastSlot']) && $trainee['lastSlot'] != -1;
+                    }));
+                }
+
+                // Si pas de données 'trainee', retourner un tableau vide
+                return [];
+            }
+        } else {
+            $this->getUrlBase();
+            $this->addFunction("getResources");
+            $this->addElementUrl("category", "trainee");
+            $this->addElementUrl('sessionId', $sessionId);
+            $this->addElementUrl('jobCategory', 'IHA');
+            $this->addElementUrl('detail', '9'); // Niveau de détail ajusté
+
+            $retour = simplexml_load_file($this->getUrl());
+            if ($retour === false || !isset($retour->trainee)) {
+                return [];
+            }
+
+            $trainees = [];
+            foreach ($retour->trainee as $trainee) {
+                // Ajouter les éléments si lastSlot != -1
+                if ((int)$trainee['lastSlot'] != -1) {
+                    $trainees[] = [
+                        'id' => (string)$trainee['id'],  // Accès à l'attribut 'id'
+                        'name' => (string)$trainee['name'],  // Accès à l'attribut 'name'
+                    ];
+                }
+            }
+
+            return $trainees;
+        }
+    }
 
 
 

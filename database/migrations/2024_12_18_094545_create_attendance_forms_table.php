@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('event_name');
             $table->foreignId('teacher_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('form_unique_code')->nullable();
+            $table->text('signature_teacher')->nullable();
             $table->dateTime('event_date')->nullable();
             $table->timestamps();
         });

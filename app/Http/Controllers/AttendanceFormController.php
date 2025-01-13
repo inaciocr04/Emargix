@@ -23,7 +23,7 @@ class AttendanceFormController extends Controller
         $signatures = StudentSignature::where('attendance_form_id', $attendanceForm->id)->get();
 
         // Passer les signatures à la vue
-        return view('teacher.attendance-event', compact('eventId'));
+        return view('teacher.attendance-event', compact('eventId', 'attendanceForm'));
     }
 
 

@@ -65,6 +65,16 @@ class StudentSignatureController extends Controller
 
     public function store(Request $request, $studentId, $attendanceFormId)
     {
+        $attendanceForm = AttendanceForm::find($attendanceFormId);
+
+        if (!$attendanceForm) {
+            return redirect()->back()->with('error', 'Formulaire introuvable.');
+        }
+
+        if ($attendanceForm->signature_teacher) {
+            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a déjà signé.');
+        }
+
         // Vérifier si l'étudiant a déjà signé pour ce formulaire de présence
         $existingSignature = StudentSignature::where('student_id', $studentId)
             ->where('attendance_form_id', $attendanceFormId)

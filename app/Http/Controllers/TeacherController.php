@@ -19,10 +19,8 @@ class TeacherController extends Controller
         // Récupérer le sessionId
         $sessionId = $apiController->connect();
         $apiController->setProject(7);
-
         // Appeler la méthode PlanningProf pour récupérer les événements
         $events = $apiController->getPlanningProf($sessionId);
-
         // Vérifier si on a des événements
         if (empty($events)) {
             // Aucun événement trouvé, on peut envoyer un tableau vide
@@ -45,7 +43,6 @@ class TeacherController extends Controller
             $day = $dayMapping[$event['day']] ?? 'Jour inconnu';
             $groupedEvents[$day][] = $event;
         }
-
         // Passer les événements à la vue
         return view('teacher.planning', compact('groupedEvents', 'dayMapping'));
     }

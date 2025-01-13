@@ -47,8 +47,5 @@
             </main>
         </div>
         @livewireScripts
-
-        <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-
     </body>
 </html>

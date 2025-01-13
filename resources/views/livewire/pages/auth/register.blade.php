@@ -19,6 +19,7 @@ new #[Layout('layouts.guest')] class extends Component
     public array $roles = []; // Pour stocker les rôles sélectionnés
     public string $selectedProfessor = '';
     public $professors = []; // Pour stocker la liste des professeurs
+    public $trainees = [];
 
 
     public function mount(): void
@@ -38,8 +39,24 @@ new #[Layout('layouts.guest')] class extends Component
                 ];
             }
 
+            usort($this->professors, function($a, $b) {
+                return strcmp($a['name'], $b['name']);  // Cela trie par ordre alphabétique du nom
+            });
             // Debug
             //dd($this->professors);  // Affiche le tableau des instructeurs
+
+            $responseTrainees = $apiController->getAllTraining($sessionId);
+            $this->trainees = [];
+            foreach ($responseTrainees as $trainee) {
+                $this->trainees[] = [
+                    'id' => (string)$trainee['id'], // Récupère l'ID
+                    'name' => (string)$trainee['name'], // Récupère le nom
+                ];
+            }
+
+            usort($this->trainees, function($a, $b) {
+                return strcmp($a['name'], $b['name']);  // Cela trie par ordre alphabétique du nom
+            });
         } catch (\Exception $e) {
             dd('Erreur : ' . $e->getMessage());
         }
@@ -182,6 +199,14 @@ new #[Layout('layouts.guest')] class extends Component
                     @endforeach
                 </select>
             </div>
+
+            <x-input-label :value="__('Choose a training')"/>
+            <select class="form-control">
+                <option value="">Choisir une formation</option>
+                @foreach ($trainees as $trainee)
+                    <option value="{{ $trainee['id'] }}">{{ $trainee['name'] }}</option>
+                @endforeach
+            </select>
         </div>
 
         <!-- Submit Button -->

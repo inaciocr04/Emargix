@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('attendance_form_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->text('signature');
-            $table->timestamps('signature_date');
+            $table->timestamps();
         });
     }
 

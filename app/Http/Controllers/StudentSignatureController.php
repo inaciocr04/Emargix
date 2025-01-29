@@ -23,31 +23,32 @@ class StudentSignatureController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($attendanceFormId)
+    public function create(Request $request,$eventId)
     {
-        $attendanceForm = AttendanceForm::findOrFail($attendanceFormId);
+        // Vérifiez que l'événement arrive bien ici
 
+        $attendanceForm = AttendanceForm::where('event_id', $eventId)->firstOrFail();
+
+        if (!$attendanceForm || $attendanceForm->token !== $request->query('token')) {
+            // Rediriger avec un message d'erreur si le token ne correspond pas
+            return redirect()->route('qr.scan')->with('error', 'L\'émargement n\'est pas possible. Token invalide.');
+        }
 
         $user = Auth::user();
         if (!$user) {
             abort(403, 'Utilisateur non connecté.');
         }
 
-        // Récupérer le professeur associé à l'utilisateur
         $student = Student::where('user_id', $user->id)->first();
-
         if (!$student || !$student->id) {
-            abort(404, 'Aucun identifiant de professeur trouvé pour cet utilisateur.');
+            abort(404, 'Aucun identifiant d\'étudiant trouvé pour cet utilisateur.');
         }
-
         $studentId = $student->id;
 
-        // Vérifier si l'étudiant a déjà signé pour cet événement
         $existingSignature = StudentSignature::where('student_id', $studentId)
-            ->where('attendance_form_id', $attendanceFormId)
+            ->where('attendance_form_id', $attendanceForm->id)
             ->first();
 
-        // Si l'étudiant a déjà signé, bloquer l'accès et rediriger vers le dashboard
         if ($existingSignature) {
             return redirect()->route('dashboard')->with('error', 'Vous avez déjà signé pour cet événement.');
         }
@@ -55,17 +56,19 @@ class StudentSignatureController extends Controller
         return view('studentSignature.create', [
             'studentId' => $studentId,
             'attendanceForm' => $attendanceForm,
-            'attendanceFormId' => $attendanceFormId
+            'eventId' => $eventId,
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
 
-    public function store(Request $request, $studentId, $attendanceFormId)
+    public function store(Request $request, $studentId, $eventId)
     {
-        $attendanceForm = AttendanceForm::find($attendanceFormId);
+        // Trouver le formulaire de présence en utilisant event_id
+        $attendanceForm = AttendanceForm::where('event_id', $eventId)->first();
 
         if (!$attendanceForm) {
             return redirect()->back()->with('error', 'Formulaire introuvable.');
@@ -75,46 +78,40 @@ class StudentSignatureController extends Controller
             return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a déjà signé.');
         }
 
-        // Vérifier si l'étudiant a déjà signé pour ce formulaire de présence
+        // Vérifier si l'étudiant a déjà signé
         $existingSignature = StudentSignature::where('student_id', $studentId)
-            ->where('attendance_form_id', $attendanceFormId)
+            ->where('attendance_form_id', $attendanceForm->id)
             ->first();
 
         if ($existingSignature) {
             return redirect()->route('dashboard')->with('error', 'Vous avez déjà signé pour cet événement.');
         }
 
-        // Récupérer la signature sous forme base64
+        // Décoder la signature
         $signatureBase64 = $request->input('signature');
         $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signatureBase64));
 
-        // Récupérer l'utilisateur connecté
-        $user = Auth::user(); // Récupère l'utilisateur connecté
+        $user = Auth::user();
+        $userFolder = 'signatures/' . $user->id;
+        $filename = uniqid() . '.png';
 
-        // Créer un dossier spécifique pour l'utilisateur connecté dans public/storage
-        $userFolder = 'signatures/' . $user->id; // Utilisation de l'ID de l'utilisateur pour créer un dossier unique
-
-        // Générer un nom de fichier unique pour chaque signature
-        $filename = uniqid() . '.png'; // Utilisation de uniqid pour générer un nom de fichier unique
-
-        // Créer le dossier si nécessaire (stocké dans public/storage)
         $path = public_path('storage/' . $userFolder);
         if (!File::exists($path)) {
-            File::makeDirectory($path, 0755, true); // Crée le dossier si il n'existe pas
+            File::makeDirectory($path, 0755, true);
         }
 
-        // Sauvegarder l'image dans le dossier de l'utilisateur
         file_put_contents($path . '/' . $filename, $imageData);
 
-        // Enregistrer la signature dans la base de données
+        // Enregistrer la signature
         $signature = new StudentSignature();
         $signature->student_id = $studentId;
-        $signature->attendance_form_id = $attendanceFormId;
-        $signature->signature = 'storage/' . $userFolder . '/' . $filename; // Chemin relatif pour l'accès public
+        $signature->attendance_form_id = $attendanceForm->id;
+        $signature->signature = 'storage/' . $userFolder . '/' . $filename;
         $signature->save();
 
         return redirect()->route('dashboard')->with('success', 'Présence enregistrée avec succès !');
     }
+
 
 
 

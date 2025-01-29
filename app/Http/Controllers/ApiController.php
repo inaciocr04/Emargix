@@ -30,7 +30,6 @@ class ApiController extends Controller
             $this->setProxyUrl(config('ade.proxy_url'));
         }
     }
-
     public function connect()
     {
         if (config('ade.useProxy')) {
@@ -237,26 +236,41 @@ class ApiController extends Controller
     public function getAllProf($sessionId)
     {
         if (config('ade.useProxy')) {
+            // Initialisation de l'URL de base du proxy
             $this->getUrlProxyBase();
+
+            // Ajout des fonctions et paramètres nécessaires à l'URL
             $this->addFunction("getResources");
             $this->addElementUrl("category", "instructor");
             $this->addElementUrl('sessionId', $sessionId);
             $this->addElementUrl('jobCategory', 'IHA');
             $this->addElementUrl('detail', '6');
 
-            $retour = Http::withBasicAuth($this->getProxyLogin(), $this->getProxyMdp())->get($this->url);
+            // Effectuer une requête HTTP avec authentification de base
+            $response = Http::withBasicAuth($this->getProxyLogin(), $this->getProxyMdp())->get($this->url);
 
-            if ($retour->successful()) {
-                // Conversion de la réponse JSON en tableau associatif
-                $data = $retour->json();
+            if ($response->successful()) {
+                // Charger la réponse XML
+                $xml = simplexml_load_string($response->body());
 
-                // S'assurer que la clé 'instructor' existe et qu'il contient un tableau
-                if (isset($data['instructor']) && is_array($data['instructor'])) {
-                    return $data['instructor']; // On retourne les instructeurs directement
+                // Vérifier si l'élément 'instructors' existe
+                if ($xml && isset($xml->instructor)) {
+                    $instructors = [];
+                    foreach ($xml->instructor as $instructor) {
+                        $instructors[] = [
+                            'id' => (string) $instructor['id'],
+                            'name' => (string) $instructor['name'],
+                            'email' => (string) $instructor['email'],
+                        ];
+                    }
+                    return $instructors;
+                } else {
+                    // Retourne un tableau vide si aucun instructeur n'est trouvé
+                    return [];
                 }
-
-                // Si pas de données 'instructor', retourner un tableau vide
-                return [];
+            } else {
+                // Gestion des erreurs si la requête échoue
+                throw new \Exception('La requête au proxy a échoué : ' . $response->status());
             }
         } else {
             $this->getUrlBase();
@@ -280,6 +294,7 @@ class ApiController extends Controller
                     'email' => (string) $instructor['email']  // Accès à l'attribut 'email'
                 ];
             }
+            //dd($instructors);
 
             return $instructors;
         }
@@ -318,72 +333,158 @@ class ApiController extends Controller
         // Assurer que la semaine courante commence à 1, même avant le 19 août
         $currentWeek = max(1, intval($currentWeek));
 
-        // Construire l'URL pour récupérer les événements
-        $this->getUrlBase(); // Appel de la fonction de base pour obtenir l'URL
-        $this->addFunction('getEvents');
-        $this->addElementUrl('sessionId', $sessionId); // Ajouter l'ID de la session
-        $this->addElementUrl('resources', $professorId); // Ajouter l'ID du professeur
-        $this->addElementUrl('weeks', $currentWeek); // Ajouter la semaine actuelle
-        $this->addElementUrl('detail', '8'); // Ajouter le détail des événements
+        if (config('ade.useProxy')) {
+            $this->getUrlProxyBase(); // Initialisation de l'URL de base du proxy
 
-        // Récupérer la réponse de l'API
-        $url = $this->getUrl();
-        $response = file_get_contents($url);
-        $retour = simplexml_load_string($response);
+            // Ajout des fonctions et paramètres nécessaires à l'URL
+            $this->addFunction('getEvents');
+            $this->addElementUrl('sessionId', $sessionId); // Ajouter l'ID de la session
+            $this->addElementUrl('resources', $professorId); // Ajouter l'ID du professeur
+            $this->addElementUrl('weeks', $currentWeek); // Ajouter la semaine actuelle
+            $this->addElementUrl('detail', '8'); // Ajouter le détail des événements
 
-        // Vérifier si l'API a renvoyé une erreur
-        if (isset($retour->error)) {
-            dd('Erreur de l\'API : ' . (string)$retour->error['name']);
-        }
+            // Construire l'URL complète
+            $url = $this->url;
+            //dd($url);
 
-        // Initialiser le tableau des événements
-        $events = [];
+            // Récupérer la réponse via le proxy avec authentification
+            $response = Http::withBasicAuth($this->getProxyLogin(), $this->getProxyMdp())->get($url);
 
-        // Extraire les événements à partir de la réponse
-        foreach ($retour->event as $event) {
-            $trainees = [];
-            $classrooms = [];
+            // Vérifier si la requête a réussi
+            if ($response->successful()) {
+                // Charger la réponse XML
+                $retour = simplexml_load_string($response->body());
 
-            foreach ($event->resources->resource as $resource) {
-                $category = (string) $resource['category'];
-                $name = (string) $resource['name'];
-
-                if ($category === 'trainee') {
-                    $trainees[] = $name;
-                } elseif ($category === 'classroom') {
-                    $classrooms[] = $name;
+                // Vérifier si l'API a renvoyé une erreur
+                if (isset($retour->error)) {
+                    dd('Erreur de l\'API : ' . (string)$retour->error['name']);
                 }
+
+                // Initialiser le tableau des événements
+                $events = [];
+
+                // Parcourir les événements retournés
+                foreach ($retour->event as $event) {
+                    $trainees = [];
+                    $classrooms = [];
+
+                    // Extraire les ressources associées à l'événement
+                    foreach ($event->resources->resource as $resource) {
+                        $category = (string)$resource['category'];
+                        $name = (string)$resource['name'];
+
+                        if ($category === 'trainee') {
+                            $trainees[] = $name;
+                        } elseif ($category === 'classroom') {
+                            $classrooms[] = $name;
+                        }
+                    }
+
+                    // Ajouter les détails de l'événement au tableau
+                    $events[] = [
+                        'id' => (string)$event['id'],  // ID de l'événement
+                        'name' => (string)$event['name'],  // Nom de l'événement
+                        'date' => (string)$event['date'],  // Date de l'événement
+                        'startHour' => (string)$event['startHour'],  // Heure de début
+                        'endHour' => (string)$event['endHour'],  // Heure de fin
+                        'day' => (string)$event['day'],  // Jour de l'événement
+                        'trainees' => $trainees, // Liste des trainees
+                        'classrooms' => $classrooms, // Liste des classrooms
+                    ];
+                }
+
+                // Retourner un tableau vide si aucun événement n'a été trouvé
+                if (empty($events)) {
+                    return [];
+                }
+
+                // Trier les événements par date et heure de début
+                usort($events, function ($a, $b) {
+                    // Convertir les dates au format ISO pour un tri correct
+                    $dateA = DateTime::createFromFormat('d/m/Y', $a['date']) ?: new DateTime($a['date']);
+                    $dateB = DateTime::createFromFormat('d/m/Y', $b['date']) ?: new DateTime($b['date']);
+
+                    $dateTimeA = $dateA->format('Y-m-d') . ' ' . $a['startHour'];
+                    $dateTimeB = $dateB->format('Y-m-d') . ' ' . $b['startHour'];
+
+                    return strtotime($dateTimeA) - strtotime($dateTimeB);
+                });
+
+                // Retourner les événements triés
+                return $events;
+            } else {
+                // Gérer les erreurs si la requête échoue
+                throw new \Exception('La requête au proxy a échoué : ' . $response->status());
+            }
+        }
+        else {
+            // Construire l'URL pour récupérer les événements
+            $this->getUrlBase(); // Appel de la fonction de base pour obtenir l'URL
+            $this->addFunction('getEvents');
+            $this->addElementUrl('sessionId', $sessionId); // Ajouter l'ID de la session
+            $this->addElementUrl('resources', $professorId); // Ajouter l'ID du professeur
+            $this->addElementUrl('weeks', $currentWeek); // Ajouter la semaine actuelle
+            $this->addElementUrl('detail', '8'); // Ajouter le détail des événements
+
+            // Récupérer la réponse de l'API
+            $url = $this->getUrl();
+            //dd($url);
+            $response = file_get_contents($url);
+            $retour = simplexml_load_string($response);
+
+            // Vérifier si l'API a renvoyé une erreur
+            if (isset($retour->error)) {
+                dd('Erreur de l\'API : ' . (string)$retour->error['name']);
             }
 
-            $events[] = [
-                'id' => (string) $event['id'],  // Accéder à l'attribut 'id'
-                'name' => (string) $event['name'],  // Accéder à l'attribut 'name'
-                'date' => (string) $event['date'],  // Accéder à l'attribut 'date'
-                'startHour' => (string) $event['startHour'],  // Accéder à l'attribut 'startHour'
-                'endHour' => (string) $event['endHour'],  // Accéder à l'attribut 'endHour'
-                'day' => (string) $event['day'],  // Accéder à l'attribut 'endHour'
-                'trainees' => $trainees, // Ajouter les trainees
-                'classrooms' => $classrooms, // Ajouter les classrooms
-            ];
+            // Initialiser le tableau des événements
+            $events = [];
+
+            // Extraire les événements à partir de la réponse
+            foreach ($retour->event as $event) {
+                $trainees = [];
+                $classrooms = [];
+
+                foreach ($event->resources->resource as $resource) {
+                    $category = (string)$resource['category'];
+                    $name = (string)$resource['name'];
+
+                    if ($category === 'trainee') {
+                        $trainees[] = $name;
+                    } elseif ($category === 'classroom') {
+                        $classrooms[] = $name;
+                    }
+                }
+
+                $events[] = [
+                    'id' => (string)$event['id'],  // Accéder à l'attribut 'id'
+                    'name' => (string)$event['name'],  // Accéder à l'attribut 'name'
+                    'date' => (string)$event['date'],  // Accéder à l'attribut 'date'
+                    'startHour' => (string)$event['startHour'],  // Accéder à l'attribut 'startHour'
+                    'endHour' => (string)$event['endHour'],  // Accéder à l'attribut 'endHour'
+                    'day' => (string)$event['day'],  // Accéder à l'attribut 'endHour'
+                    'trainees' => $trainees, // Ajouter les trainees
+                    'classrooms' => $classrooms, // Ajouter les classrooms
+                ];
+            }
+
+            // Si aucun événement n'a été trouvé, retourner un tableau vide
+            if (empty($events)) {
+                return [];
+            }
+
+            usort($events, function ($a, $b) {
+                // Assurez-vous que les dates sont au format ISO (YYYY-MM-DD)
+                $dateA = DateTime::createFromFormat('d/m/Y', $a['date']) ?: new DateTime($a['date']);
+                $dateB = DateTime::createFromFormat('d/m/Y', $b['date']) ?: new DateTime($b['date']);
+
+                $dateTimeA = $dateA->format('Y-m-d') . ' ' . $a['startHour'];
+                $dateTimeB = $dateB->format('Y-m-d') . ' ' . $b['startHour'];
+
+                return strtotime($dateTimeA) - strtotime($dateTimeB);
+            });
+            return $events;
         }
-
-        // Si aucun événement n'a été trouvé, retourner un tableau vide
-        if (empty($events)) {
-            return [];
-        }
-
-        usort($events, function ($a, $b) {
-            // Assurez-vous que les dates sont au format ISO (YYYY-MM-DD)
-            $dateA = DateTime::createFromFormat('d/m/Y', $a['date']) ?: new DateTime($a['date']);
-            $dateB = DateTime::createFromFormat('d/m/Y', $b['date']) ?: new DateTime($b['date']);
-
-            $dateTimeA = $dateA->format('Y-m-d') . ' ' . $a['startHour'];
-            $dateTimeB = $dateB->format('Y-m-d') . ' ' . $b['startHour'];
-
-            return strtotime($dateTimeA) - strtotime($dateTimeB);
-        });
-
-        return $events;
     }
 
     public function getEventPlanningId($sessionId, $eventId)
@@ -450,6 +551,8 @@ class ApiController extends Controller
             $this->addElementUrl('jobCategory', 'IHA');
             $this->addElementUrl('detail', '9'); // Niveau de détail ajusté
 
+            $url = $this->getUrl();
+            //dd($url);
             $retour = simplexml_load_file($this->getUrl());
             if ($retour === false || !isset($retour->trainee)) {
                 return [];
@@ -457,8 +560,8 @@ class ApiController extends Controller
 
             $trainees = [];
             foreach ($retour->trainee as $trainee) {
-                // Ajouter les éléments si lastSlot != -1
-                if ((int)$trainee['lastSlot'] != -1) {
+                // Ajouter les éléments si lastSlot != -1 et isGroup = true
+                if ((int)$trainee['lastSlot'] != -1 && ((string)$trainee['isGroup'] === 'true')) {
                     $trainees[] = [
                         'id' => (string)$trainee['id'],  // Accès à l'attribut 'id'
                         'name' => (string)$trainee['name'],  // Accès à l'attribut 'name'

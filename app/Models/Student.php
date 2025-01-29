@@ -23,8 +23,4 @@ class Student extends Model
         return $this->hasMany(StudentSignature::class);
     }
 
-    public function attendanceForms()
-    {
-        return $this->hasMany(AttendanceForm::class);
-    }
 }

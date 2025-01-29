@@ -6,7 +6,7 @@
         <p>Nom de l'évènement : {{ $attendanceForm->event_name }}</p>
         <p>Date : {{ $attendanceForm->event_date }}</p>
 
-        <form action="{{ route('studentSignature.store', ['studentId' => $studentId, 'attendanceFormId' => $attendanceFormId])}}" method="POST">
+        <form action="{{ route('studentSignature.store', ['studentId' => $studentId, 'eventId' => $eventId])}}" method="POST">
             @csrf
 
             <div>

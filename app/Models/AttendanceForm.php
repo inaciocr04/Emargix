@@ -36,4 +36,19 @@ class AttendanceForm extends Model
     {
         return $this->hasMany(TeacherSignature::class);
     }
+
+    public function training()
+    {
+        return $this->belongsTo(Training::class, 'training_id');
+    }
+
+    public function tdGroup()
+    {
+        return $this->belongsTo(TdGroup::class, 'td_group_id');
+    }
+
+    public function tpGroup()
+    {
+        return $this->belongsTo(TpGroup::class, 'tp_group_id');
+    }
 }

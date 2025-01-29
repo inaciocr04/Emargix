@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceForm;
 use App\Models\StudentSignature;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AttendanceFormController extends Controller
@@ -18,14 +20,33 @@ class AttendanceFormController extends Controller
             return redirect()->route('teacher.planning')->with('error', 'Événement non trouvé.');
         }
 
-        // Récupérer toutes les signatures des étudiants associées à ce formulaire d'émargement
-        // Supposons que la table `student_signature` a un champ `attendance_form_id` pour lier les signatures à un formulaire d'émargement
-        $signatures = StudentSignature::where('attendance_form_id', $attendanceForm->id)->get();
 
         // Passer les signatures à la vue
-        return view('teacher.attendance-event', compact('eventId', 'attendanceForm'));
+        return view('attendance.attendance-event', compact('eventId', 'attendanceForm'));
     }
 
+    public function getAttendanceFormsByTeacher()
+    {
+        // Récupérer l'utilisateur connecté
+        $user = Auth::user();
+        if (!$user) {
+            abort(403, 'Utilisateur non connecté.');
+        }
+
+        // Récupérer le professeur associé à cet utilisateur
+        $teacher = Teacher::where('user_id', $user->id)->first();
+        if (!$teacher) {
+            abort(404, 'Aucun professeur trouvé pour cet utilisateur.');
+        }
+
+        // Récupérer tous les formulaires d’émargement créés par ce professeur, triés du plus récent au moins récent
+        $attendanceForms = $teacher->attendanceForms()
+            ->orderBy('created_at', 'desc') // Ordre décroissant (plus récent d'abord)
+            ->get();
+
+        // Retourner une vue ou une réponse JSON
+        return view('attendance.attendance-list', compact('attendanceForms'));
+    }
 
 
     /**

@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         User::create([
             'id' => '2',
             'name' => 'Rémi allègre',
-            'email' => 'remi.allègre@unistra.fr',
+            'email' => 'remi.allegre@unistra.fr',
             'password' => Hash::make('password'),
             'role' => 'teacher'
         ]);

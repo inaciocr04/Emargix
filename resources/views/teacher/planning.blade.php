@@ -25,10 +25,7 @@
                                     <li>{{ $classroom }}</li>
                                 @endforeach
                             </ul>
-                            <form action="{{ route('attendance.generateQrCode', ['eventId' => $event['id']]) }}" method="GET">
-                                @csrf
-                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">Générer le QR Code</button>
-                            </form>
+                            <livewire:attendance-form-modal :eventId="$event['id']" />
                         </div>
                     @endforeach
                 </div>

@@ -15,10 +15,15 @@ return new class extends Migration
             $table->id();
             $table->integer('event_id');
             $table->string('event_name');
+            $table->string('event_end_hour');
+            $table->string('event_start_hour');
             $table->foreignId('teacher_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->string('form_unique_code')->nullable();
             $table->text('signature_teacher')->nullable();
             $table->dateTime('event_date')->nullable();
+            $table->string('token')->nullable();
+            $table->foreignId('training_id')->nullable()->constrained()->cascadeOnUpdate();
+            $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate();
+            $table->foreignId('td_group_id')->nullable()->constrained()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

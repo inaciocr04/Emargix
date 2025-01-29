@@ -6,6 +6,7 @@ use App\Models\AttendanceForm;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TeacherController extends Controller
@@ -66,71 +67,30 @@ class TeacherController extends Controller
             return redirect()->back()->with('error', 'Événement introuvable.');
         }
 
-        $user = Auth::user();
-        if (!$user) {
-            abort(403, 'Utilisateur non connecté.');
-        }
-
-        // Récupérer le professeur associé à l'utilisateur
-        $teacher = Teacher::where('user_id', $user->id)->first();
-
-        if (!$teacher || !$teacher->professor_id) {
-            abort(404, 'Aucun identifiant de professeur trouvé pour cet utilisateur.');
-        }
-
-        $professorId = $teacher->id;
-
         // Vérifier si un formulaire d'émargement pour cet événement existe déjà
         $attendanceForm = AttendanceForm::where('event_id', $selectedEvent['id'])->first();
 
-        // Si aucun formulaire d'émargement n'existe, en créer un nouveau
-        if (!$attendanceForm) {
-            $attendanceForm = new AttendanceForm();
-            $attendanceForm->event_id = $selectedEvent['id'];  // Utilisation de l'ID de l'événement spécifique
-            $attendanceForm->event_name = $selectedEvent['name'];  // Utilisation de l'ID de l'événement spécifique
-            $attendanceForm->teacher_id = $professorId;
-            $attendanceForm->event_date = $selectedEvent['date'];  // Date actuelle (lorsque le QR code est généré)
-            $attendanceForm->save();
-        }
+        // Générer un nouveau token
+        $attendanceForm->token = Str::uuid()->toString();
+        $attendanceForm->save();
 
-        // Générer l'URL du formulaire d'émargement
-        $url = route('studentSignature.create', ['attendanceForm' => $attendanceForm->id]);
+        // Générer l'URL du formulaire avec un paramètre unique
+        $url = route('studentSignature.create', [
+            'eventId' => $attendanceForm->event_id,
+            'token' => $attendanceForm->token,
+        ]);
 
-        // Générer le QR code contenant l'URL du formulaire d'émargement
-        $qrCodeImage = QrCode::size(250)->generate($url);  // Génère le QR code en une image.
+        // Générer le QR code (assurez-vous de retourner le code HTML ou SVG)
+        $qrCodeImage = QrCode::size(250)->generate($url);
 
-        // Retourner la vue avec le QR code généré, l'événement et l'ID de l'événement
+
+        // Retourner la vue pour l'affichage initial
         return view('attendance.qr_code', [
             'attendanceForm' => $attendanceForm,
             'qrCodeImage' => $qrCodeImage,
-            'eventId' => $eventId,  // Passer l'eventId à la vue
+            'eventId' => $eventId,
         ]);
     }
-
-    public function getAttendanceFormsByTeacher()
-    {
-        // Récupérer l'utilisateur connecté
-        $user = Auth::user();
-        if (!$user) {
-            abort(403, 'Utilisateur non connecté.');
-        }
-
-        // Récupérer le professeur associé à cet utilisateur
-        $teacher = Teacher::where('user_id', $user->id)->first();
-        if (!$teacher) {
-            abort(404, 'Aucun professeur trouvé pour cet utilisateur.');
-        }
-
-        // Récupérer tous les formulaires d’émargement créés par ce professeur, triés du plus récent au moins récent
-        $attendanceForms = $teacher->attendanceForms()
-            ->orderBy('created_at', 'desc') // Ordre décroissant (plus récent d'abord)
-            ->get();
-
-        // Retourner une vue ou une réponse JSON
-        return view('teacher.attendance-list', compact('attendanceForms'));
-    }
-
-
 
 
     /**

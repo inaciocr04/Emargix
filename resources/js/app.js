@@ -17,7 +17,7 @@ function onScanFailure(error) {
 const html5QrCode = new Html5Qrcode("reader");
 
 html5QrCode.start(
-    { facingMode: "user" }, // Option pour utiliser la caméra arrière
+    { facingMode: "environment" }, // Option pour utiliser la caméra arrière
     {
         fps: 10,    // Vitesse des frames
         qrbox: 250  // Taille de la zone de scan

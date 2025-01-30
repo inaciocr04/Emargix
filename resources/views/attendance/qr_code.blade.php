@@ -22,33 +22,10 @@
     <script>
         let countdownTime = 20;
 
-        // Fonction pour actualiser le QR code toutes les 20 secondes et mettre à jour le compte à rebours
+        // Fonction pour actualiser la page toutes les 20 secondes
         setInterval(function() {
-            var eventId = {{ $eventId }}; // L'ID de l'événement, passé depuis Laravel
-
-            // Effectuer la requête AJAX pour récupérer le QR code mis à jour
-            fetch(`/teacher/planning/generate-qr-code/${eventId}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Assurez-vous d'envoyer une requête AJAX
-                }
-            })
-                .then(response => response.json()) // On parse la réponse en JSON
-                .then(data => {
-                    // Injecter le QR code mis à jour dans le conteneur
-                    document.getElementById('qrCodeContainer').innerHTML = data.qrCode;  // Utilisation de innerHTML pour insérer du HTML
-
-                    // Mettre à jour le token si nécessaire, bien que ça ne soit pas obligatoire ici
-                    // Si tu veux utiliser le token pour d'autres actions côté client, tu peux le stocker
-                    // var token = data.token;
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la génération du QR code:', error);
-                });
-
-            // Réinitialiser le compte à rebours
-            countdownTime = 20;
-        }, 20000); // Rafraîchir toutes les 20 secondes (20000 millisecondes)
+            location.reload();  // Recharger la page pour générer un nouveau QR code
+        }, 20000); // Rafraîchir toutes les 20 secondes
 
         // Fonction pour afficher le compte à rebours
         function updateCountdown() {

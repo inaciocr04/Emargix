@@ -23,28 +23,32 @@ class StudentSignatureController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request,$eventId)
+    public function create(Request $request, $eventId)
     {
-        // Vérifiez que l'événement arrive bien ici
-
+        // Vérifier si l'événement existe
         $attendanceForm = AttendanceForm::where('event_id', $eventId)->firstOrFail();
 
-        if (!$attendanceForm || $attendanceForm->token !== $request->query('token')) {
+        // Vérifier si le token est valide
+        if ($attendanceForm->token !== $request->query('token')) {
             // Rediriger avec un message d'erreur si le token ne correspond pas
             return redirect()->route('qr.scan')->with('error', 'L\'émargement n\'est pas possible. Token invalide.');
         }
 
+        // Vérifier si l'utilisateur est connecté
         $user = Auth::user();
         if (!$user) {
             abort(403, 'Utilisateur non connecté.');
         }
 
+        // Récupérer l'étudiant associé à l'utilisateur
         $student = Student::where('user_id', $user->id)->first();
-        if (!$student || !$student->id) {
+        if (!$student) {
             abort(404, 'Aucun identifiant d\'étudiant trouvé pour cet utilisateur.');
         }
+
         $studentId = $student->id;
 
+        // Vérifier si l'étudiant a déjà signé pour cet événement
         $existingSignature = StudentSignature::where('student_id', $studentId)
             ->where('attendance_form_id', $attendanceForm->id)
             ->first();
@@ -53,6 +57,7 @@ class StudentSignatureController extends Controller
             return redirect()->route('dashboard')->with('error', 'Vous avez déjà signé pour cet événement.');
         }
 
+        // Retourner la vue avec les données nécessaires
         return view('studentSignature.create', [
             'studentId' => $studentId,
             'attendanceForm' => $attendanceForm,

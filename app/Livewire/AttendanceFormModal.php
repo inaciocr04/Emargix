@@ -97,9 +97,9 @@ class AttendanceFormModal extends Component
         }
 
         // Ajouter le training_id, td_group_id, tp_group_id si sélectionnés
-        $attendanceForm->training_id = $this->selectedTraining; // Peut être nul
-        $attendanceForm->td_group_id = $this->selectedTdGroup; // Peut être nul
-        $attendanceForm->tp_group_id = $this->selectedTpGroup; // Peut être nul
+        $attendanceForm->training_id = $this->selectedTraining;
+        $attendanceForm->td_group_id = $this->selectedTdGroup ?: null;
+        $attendanceForm->tp_group_id = $this->selectedTpGroup ?: null;
 
         // Générer un nouveau token unique
         $attendanceForm->token = Str::uuid()->toString();

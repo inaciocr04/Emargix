@@ -80,11 +80,10 @@ class TeacherController extends Controller
             'token' => $attendanceForm->token,
         ]);
 
-        // Générer le QR code (assurez-vous de retourner le code HTML ou SVG)
+        // Générer le QR code avec le nouveau token
         $qrCodeImage = QrCode::size(250)->generate($url);
 
-
-        // Retourner la vue pour l'affichage initial
+        // Retourner la vue avec le QR code mis à jour
         return view('attendance.qr_code', [
             'attendanceForm' => $attendanceForm,
             'qrCodeImage' => $qrCodeImage,

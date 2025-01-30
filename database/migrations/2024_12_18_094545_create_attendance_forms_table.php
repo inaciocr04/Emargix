@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('event_start_hour');
             $table->foreignId('teacher_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->text('signature_teacher')->nullable();
-            $table->dateTime('event_date')->nullable();
+            $table->string('event_date')->nullable();
             $table->string('token')->nullable();
             $table->foreignId('training_id')->nullable()->constrained()->cascadeOnUpdate();
             $table->foreignId('td_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();

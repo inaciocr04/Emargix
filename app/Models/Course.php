@@ -13,6 +13,6 @@ class TdGroup extends Model
 
     public function students()
     {
-        return $this->hasMany(Student::class, 'training_id');
+        return $this->hasMany(Student::class, 'td_group_id');
     }
 }

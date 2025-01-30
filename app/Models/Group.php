@@ -17,6 +17,6 @@ class TpGroup extends Model
 
     public function students()
     {
-        return $this->hasMany(Student::class, 'training_id');
+        return $this->hasMany(Student::class, 'tp_group_id');
     }
 }

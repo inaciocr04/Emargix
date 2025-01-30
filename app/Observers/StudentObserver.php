@@ -38,7 +38,7 @@ class StudentObserver
      */
     public function updated(Student $student): void
     {
-        //
+        $this->linkStudentsToUsers();
     }
 
     /**

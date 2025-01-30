@@ -34,10 +34,10 @@ new class extends Component
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if(Auth::user()->isStudent())
+                @if(Auth::user()->isManager())
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('qr.scan')" :active="request()->routeIs('qr.scan')" wire:navigate>
-                            {{ __('Scanner') }}
+                        <x-nav-link :href="route('manager.attendance-list')" :active="request()->routeIs('manager.attendance-list')">
+                            {{ __('Listes émargements') }}
                         </x-nav-link>
                     </div>
                 @elseif(Auth::user()->isTeacher())
@@ -49,6 +49,12 @@ new class extends Component
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('attendance.attendance-list')" :active="request()->routeIs('teacher.attendance-list')" wire:navigate>
                             {{ __('Listes émargements') }}
+                        </x-nav-link>
+                    </div>
+                @elseif(Auth::user()->isStudent())
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('qr.scan')" :active="request()->routeIs('qr.scan')" wire:navigate>
+                            {{ __('Scanner') }}
                         </x-nav-link>
                     </div>
                 @endif

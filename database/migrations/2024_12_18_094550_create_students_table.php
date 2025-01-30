@@ -17,10 +17,11 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('firstname');
             $table->string('email')->unique();
-            $table->string('event_training')->nullable();
+            $table->string('student_statu')->nullable();
             $table->foreignId('training_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-            $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('td_group_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('course_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate()->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AttendanceFormController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\StudentSignatureController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherSignatureController;
+use App\Http\Middleware\UserIsManager;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -41,5 +43,15 @@ Route::post('/teacher/signature/{eventId}', [TeacherSignatureController::class, 
 Route::get('/scan', function () {
     return view('scan'); // La vue contenant le scanner
 })->name('qr.scan');
+
+
+Route::name('manager.')
+    ->prefix('/manager')
+    ->middleware(UserIsManager::class)
+    ->group(function () {
+        Route::get('/manager/attendance-list', [AttendanceFormController::class, 'getAttendanceFormsManager'])->name('attendance-list');
+        Route::post('/manager/import', [ImportController::class, 'import'])->name('import');
+    });
+
 
 

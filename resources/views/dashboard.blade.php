@@ -14,4 +14,15 @@
             </div>
         </div>
     </div>
+    @if(Auth::user()->isManager())
+        <form action="{{Route('manager.import')}}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            @csrf
+            <div class="flex flex-col space-y-2">
+                <label for="file" class="text-lg font-medium text-gray-700">Sélectionner un fichier</label>
+                <input type="file" name="file" id="file" required class="border border-gray-300 rounded-md p-2">
+            </div>
+            <button type="submit" class="bg-red-600">Importer</button>
+
+        </form>
+    @endif
 </x-app-layout>

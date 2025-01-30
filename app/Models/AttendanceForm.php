@@ -42,13 +42,13 @@ class AttendanceForm extends Model
         return $this->belongsTo(Training::class, 'training_id');
     }
 
-    public function tdGroup()
+    public function course()
     {
-        return $this->belongsTo(TdGroup::class, 'td_group_id');
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
-    public function tpGroup()
+    public function group()
     {
-        return $this->belongsTo(TpGroup::class, 'tp_group_id');
+        return $this->belongsTo(TdGroup::class, 'group_id');
     }
 }

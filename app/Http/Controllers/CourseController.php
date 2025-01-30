@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TdGroup;
+use App\Models\Course;
 use Illuminate\Http\Request;
 
-class TdGroupController extends Controller
+class CourseController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class TdGroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TdGroup $tdGroup)
+    public function show(Course $tdGroup)
     {
         //
     }
@@ -42,7 +42,7 @@ class TdGroupController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TdGroup $tdGroup)
+    public function edit(Course $tdGroup)
     {
         //
     }
@@ -50,7 +50,7 @@ class TdGroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TdGroup $tdGroup)
+    public function update(Request $request, Course $tdGroup)
     {
         //
     }
@@ -58,7 +58,7 @@ class TdGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TdGroup $tdGroup)
+    public function destroy(Course $tdGroup)
     {
         //
     }

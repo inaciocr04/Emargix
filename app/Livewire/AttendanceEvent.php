@@ -3,36 +3,70 @@
 namespace App\Livewire;
 
 use App\Models\AttendanceForm;
+use App\Models\Student;
 use App\Models\StudentSignature;
 use Livewire\Component;
 
 class AttendanceEvent extends Component
 {
     public $eventId;
-    public $signatures = [];
+    public $students = [];
 
     // Méthode de montage pour initialiser les données
     public function mount($eventId)
     {
         $this->eventId = $eventId;
-        $this->loadSignatures();
+        $this->loadStudents();
     }
 
-    // Charger les signatures
-    public function loadSignatures()
+    // Charger les étudiants selon leur training_id, group_id ou course_id
+    public function loadStudents()
     {
+        // Récupérer l'événement (pour avoir l'id de l'event)
         $attendanceForm = AttendanceForm::where('event_id', $this->eventId)->latest()->first();
 
         if ($attendanceForm) {
-            $this->signatures = StudentSignature::where('attendance_form_id', $attendanceForm->id)->orderBy('created_at', 'desc')->get();
+            // Initialiser la requête pour récupérer les étudiants
+            $query = Student::where('training_id', $attendanceForm->training_id);
+
+            // Ajouter un filtre pour le cours si l'attendanceForm a un course_id
+            if ($attendanceForm->course_id) {
+                $query->where('course_id', $attendanceForm->course_id);
+            }
+
+            // Ajouter un filtre pour le groupe si l'attendanceForm a un group_id
+            if ($attendanceForm->group_id) {
+                $query->where('group_id', $attendanceForm->group_id);
+            }
+
+            // Récupérer les étudiants qui correspondent à ces critères
+            $students = $query->get();
+
+            // Vérifier si l'étudiant a signé
+            foreach ($students as $student) {
+                // Chercher la signature de l'étudiant pour cet événement
+                $signature = StudentSignature::where('student_id', $student->id)
+                    ->whereHas('attendanceForm', function ($query) use ($attendanceForm) {
+                        $query->where('event_id', $attendanceForm->event_id);
+                    })
+                    ->first();
+
+                // Ajouter l'étudiant et son statut de signature (signé ou absent)
+                $student->signature_status = $signature ? 'Signé' : 'Absent';
+            }
+
+            // Mettre à jour la liste des étudiants
+            $this->students = $students;
         }
     }
 
-    // Méthode pour écouter en temps réel les nouvelles signatures
-    protected $listeners = ['signatureUpdated' => 'loadSignatures'];
+    // Méthode pour écouter les mises à jour en temps réel des signatures
+    protected $listeners = ['signatureUpdated' => 'loadStudents'];
 
     public function render()
     {
-        return view('livewire.attendance-event');
+        return view('livewire.attendance-event', [
+            'students' => $this->students,
+        ]);
     }
 }

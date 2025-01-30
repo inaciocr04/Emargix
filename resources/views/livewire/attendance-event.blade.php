@@ -1,34 +1,33 @@
-<div class="border-2 border-gray-300 p-4">
-    <h1 class="text-2xl font-bold mb-4">Liste des élèves présents</h1>
-
-    @if($signatures->isEmpty())
-        <p>Aucun élève n'a encore signé la feuille de présence pour cet événement.</p>
-    @else
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
+<div>
+    <!-- Table des étudiants -->
+    <table class="min-w-full bg-white border border-gray-300">
+        <thead>
+        <tr>
+            <th class="px-4 py-2 border">Nom de l'étudiant</th>
+            <th class="px-4 py-2 border">Formation</th>
+            <th class="px-4 py-2 border">Parcours</th>
+            <th class="px-4 py-2 border">Groupe de TD</th>
+            <th class="px-4 py-2 border">Groupe de TP</th>
+            <th class="px-4 py-2 border">Statut de la signature</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($students as $student)
             <tr>
-                <th class="px-4 py-2 border">Nom</th>
-                <th class="px-4 py-2 border">Prénom</th>
-                <th class="px-4 py-2 border">Heure de signature</th>
-                <th class="px-4 py-2 border">Signature</th>
+                <td class="px-4 py-2 border">{{ $student->firstname }} {{ $student->lastname }}</td>
+                <td class="px-4 py-2 border">{{ $student->training->name }}</td>
+                <td class="px-4 py-2 border">{{ $student->course->name ?? 'rien' }}</td>
+                <td class="px-4 py-2 border">{{ $student->td_group->name ?? 'rien' }}</td>
+                <td class="px-4 py-2 border">{{ $student->tp_group->name ?? 'rien' }}</td>
+                <td class="px-4 py-2 border">
+                    @if($student->signature_status === 'Signé')
+                        <span class="text-green-500">Signé</span>
+                    @else
+                        <span class="text-red-500">Absent</span>
+                    @endif
+                </td>
             </tr>
-            </thead>
-            <tbody>
-            @foreach($signatures as $signature)
-                <tr>
-                    <td class="px-4 py-2 border">{{ $signature->student->lastname }}</td>
-                    <td class="px-4 py-2 border">{{ $signature->student->firstname }}</td>
-                    <td class="px-4 py-2 border">{{ $signature->created_at->format('H:i:s') }}</td>
-                    <td class="px-4 py-2 border">
-                        @if($signature->signature)
-                            <img src="{{ asset($signature->signature) }}" alt="Signature" class="h-16">
-                        @else
-                            <span>Aucune signature</span>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    @endif
+        @endforeach
+        </tbody>
+    </table>
 </div>

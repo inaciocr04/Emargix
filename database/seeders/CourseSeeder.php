@@ -2,34 +2,34 @@
 
 namespace Database\Seeders;
 
-use App\Models\TdGroup;
+use App\Models\Course;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class TdGroupSeeder extends Seeder
+class CourseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        TdGroup::create([
-            'name' => 'TD1',
-        ]);
-        TdGroup::create([
-            'name' => 'TD2',
-        ]);
-        TdGroup::create([
-            'name' => 'TD3',
-        ]);
-        TdGroup::create([
+        Course::create([
             'name' => 'DW',
         ]);
-        TdGroup::create([
+        Course::create([
             'name' => 'SCN',
         ]);
-        TdGroup::create([
+        Course::create([
             'name' => 'CN',
+        ]);
+        Course::create([
+            'name' => 'DW_A',
+        ]);
+        Course::create([
+            'name' => 'SCN_A',
+        ]);
+        Course::create([
+            'name' => 'CN_A',
         ]);
     }
 }

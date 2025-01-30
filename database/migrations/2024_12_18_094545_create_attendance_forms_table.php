@@ -22,8 +22,9 @@ return new class extends Migration
             $table->dateTime('event_date')->nullable();
             $table->string('token')->nullable();
             $table->foreignId('training_id')->nullable()->constrained()->cascadeOnUpdate();
-            $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('td_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('course_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->timestamps();
         });
     }

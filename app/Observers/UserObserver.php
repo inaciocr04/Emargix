@@ -55,7 +55,8 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        //
+        $this->linkUsersToStudents();
+        $this->linkUsersToTeachers();
     }
 
     /**

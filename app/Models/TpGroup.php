@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class TpGroup extends Model
 {
-    /** @use HasFactory<\Database\Factories\TpGroupFactory> */
+    /** @use HasFactory<\Database\Factories\GroupFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+    ];
     public function attendanceForms()
     {
         return $this->hasMany(AttendanceForm::class, 'training_id');

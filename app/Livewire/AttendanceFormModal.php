@@ -4,9 +4,10 @@ namespace App\Livewire;
 
 use App\Http\Controllers\ApiController;
 use App\Models\Teacher;
-use App\Models\Training;
-use App\Models\TdGroup;
 use App\Models\TpGroup;
+use App\Models\Training;
+use App\Models\Course;
+use App\Models\TdGroup;
 use App\Models\AttendanceForm;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -18,9 +19,11 @@ class AttendanceFormModal extends Component
     public $showModal = false; // Garder cette ligne seule
     public $eventId;
     public $trainings = [];
-    public $tdGroups = [];
-    public $tpGroups = [];
+    public $courses = [];
+    public $tdgroups = [];
+    public $tpgroups = [];
     public $selectedTraining;
+    public $selectedCourse;
     public $selectedTdGroup;
     public $selectedTpGroup;
     public $qrCodeImage = null;
@@ -29,6 +32,7 @@ class AttendanceFormModal extends Component
         'selectedTraining' => 'required',
         'selectedTdGroup' => 'nullable',
         'selectedTpGroup' => 'nullable',
+        'selectedCourse' => 'nullable',
     ];
 
     public function mount($eventId)
@@ -38,14 +42,16 @@ class AttendanceFormModal extends Component
 
         // Charger les formations et les groupes
         $this->trainings = Training::all();
-        $this->tdGroups = TdGroup::all();
-        $this->tpGroups = TpGroup::all();
+        $this->courses = Course::all();
+        $this->tdgroups = TdGroup::all();
+        $this->tpgroups = TpGroup::all();
 
         $attendanceForm = AttendanceForm::where('event_id', $this->eventId)->first();
         if ($attendanceForm) {
             $this->selectedTraining = $attendanceForm->training_id;
-            $this->selectedTdGroup = $attendanceForm->td_group_id;
-            $this->selectedTpGroup = $attendanceForm->tp_group_id;
+            $this->selectedCourse = $attendanceForm->course_id;
+            $this->selectedTdGroup = $attendanceForm->tdgroup_id;
+            $this->selectedTpGroup = $attendanceForm->tpgroup_id;
         }
     }
 
@@ -96,8 +102,9 @@ class AttendanceFormModal extends Component
             $attendanceForm->event_end_hour = $selectedEvent['endHour'];
         }
 
-        // Ajouter le training_id, td_group_id, tp_group_id si sélectionnés
+        // Ajouter le training_id, course_id, group_id si sélectionnés
         $attendanceForm->training_id = $this->selectedTraining;
+        $attendanceForm->course_id = $this->selectedCourse ?: null;
         $attendanceForm->td_group_id = $this->selectedTdGroup ?: null;
         $attendanceForm->tp_group_id = $this->selectedTpGroup ?: null;
 

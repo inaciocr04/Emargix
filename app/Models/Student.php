@@ -11,7 +11,15 @@ class Student extends Model
     /** @use HasFactory<\Database\Factories\StudentFactory> */
     use HasFactory;
 
-    protected $table = 'students';
+    protected $fillable = [
+        'lastname',
+        'firstname',
+        'email',
+        'student_statu',
+        'training_id',
+        'group_id',
+        'course_id',
+    ];
 
     public function user(): BelongsTo
     {
@@ -21,6 +29,21 @@ class Student extends Model
     public function signatures()
     {
         return $this->hasMany(StudentSignature::class);
+    }
+
+    public function training()
+    {
+        return $this->belongsTo(Training::class, 'training_id');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(TdGroup::class, 'group_id');
     }
 
 }

@@ -5,15 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Training extends Model
+class TdGroup extends Model
 {
-    /** @use HasFactory<\Database\Factories\TrainingFactory> */
+    /** @use HasFactory<\Database\Factories\GroupFactory> */
     use HasFactory;
 
     protected $fillable = [
         'name',
     ];
-
     public function attendanceForms()
     {
         return $this->hasMany(AttendanceForm::class, 'training_id');
@@ -21,6 +20,6 @@ class Training extends Model
 
     public function students()
     {
-        return $this->hasMany(Student::class, 'training_id');
+        return $this->hasMany(Student::class, 'tp_group_id');
     }
 }

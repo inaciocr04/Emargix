@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TpGroup;
+use App\Models\TdGroup;
 use Illuminate\Http\Request;
 
-class TpGroupController extends Controller
+class GroupController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class TpGroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TpGroup $tpGroup)
+    public function show(TdGroup $tpGroup)
     {
         //
     }
@@ -42,7 +42,7 @@ class TpGroupController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TpGroup $tpGroup)
+    public function edit(TdGroup $tpGroup)
     {
         //
     }
@@ -50,7 +50,7 @@ class TpGroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TpGroup $tpGroup)
+    public function update(Request $request, TdGroup $tpGroup)
     {
         //
     }
@@ -58,7 +58,7 @@ class TpGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TpGroup $tpGroup)
+    public function destroy(TdGroup $tpGroup)
     {
         //
     }

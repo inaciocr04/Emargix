@@ -48,6 +48,15 @@ class AttendanceFormController extends Controller
         return view('attendance.attendance-list', compact('attendanceForms'));
     }
 
+    public function getAttendanceFormsManager()
+    {
+        $attendanceForms = AttendanceForm::all();
+
+        return view('manager.attendance-list', [
+            'attendanceForms' => $attendanceForms,
+        ]);
+    }
+
 
     /**
      * Display a listing of the resource.

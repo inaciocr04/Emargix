@@ -39,24 +39,34 @@
                             @error('selectedTraining') <span class="text-red-500">{{ $message }}</span> @enderror
                         </div>
 
-                        <!-- Sélectionner le groupe TD -->
+                        <!-- Sélectionner le parcours -->
                         <div class="mb-4">
-                            <label for="selectedTdGroup" class="block">Groupe TD</label>
+                            <label for="selectedCourse" class="block">Parcours</label>
+                            <select wire:model="selectedCourse" id="selectedCourse" class="w-full p-2 border rounded">
+                                <option value="">Sélectionner un parcours</option>
+                                @foreach($courses as $course)
+                                    <option value="{{ $course->id }}">{{ $course->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="selectedTdGroup" class="block">Groupe</label>
                             <select wire:model="selectedTdGroup" id="selectedTdGroup" class="w-full p-2 border rounded">
-                                <option value="">Sélectionner un groupe TD</option>
-                                @foreach($tdGroups as $tdGroup)
-                                    <option value="{{ $tdGroup->id }}">{{ $tdGroup->name }}</option>
+                                <option value="">Sélectionner un groupe de TD</option>
+                                @foreach($tdgroups as $tdgroup)
+                                    <option value="{{ $tdgroup->id }}">{{ $tdgroup->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <!-- Sélectionner le groupe TP -->
                         <div class="mb-4">
-                            <label for="selectedTpGroup" class="block">Groupe TP</label>
+                            <label for="selectedTpGroup" class="block">Groupe</label>
                             <select wire:model="selectedTpGroup" id="selectedTpGroup" class="w-full p-2 border rounded">
-                                <option value="">Sélectionner un groupe TP</option>
-                                @foreach($tpGroups as $tpGroup)
-                                    <option value="{{ $tpGroup->id }}">{{ $tpGroup->name }}</option>
+                                <option value="">Sélectionner un groupe de TP</option>
+                                @foreach($tpgroups as $tpgroup)
+                                    <option value="{{ $tpgroup->id }}">{{ $tpgroup->name }}</option>
                                 @endforeach
                             </select>
                         </div>

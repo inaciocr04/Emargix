@@ -3,8 +3,9 @@
 namespace App\Imports;
 
 use App\Models\Course;
-use App\Models\Group;
+use App\Models\TdGroup;
 use App\Models\Student;
+use App\Models\TpGroup;
 use App\Models\Training;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -22,8 +23,11 @@ class DataImport implements ToModel, WithHeadingRow
             ['name' => $row['parcours'] ?? 'Parcours inconnu']
         );
 
-        $group = Group::updateOrCreate(
-            ['name' => $row['groupe'] ?? 'Groupe inconnu']
+        $tdgroup = TdGroup::updateOrCreate(
+            ['name' => $row['groupe td'] ?? 'Groupe inconnu']
+        );
+        $tpgroup = TpGroup::updateOrCreate(
+            ['name' => $row['groupe tp'] ?? 'Groupe inconnu']
         );
 
         try {
@@ -35,7 +39,8 @@ class DataImport implements ToModel, WithHeadingRow
                     'student_statu' => $row['statut'] ?? 'Inconnu',
                     'training_id' => $training->id,
                     'course_id' => $course->id,
-                    'group_id' => $group->id,
+                    'td_group_id' => $tdgroup->id,
+                    'tp_group_id' => $tpgroup->id,
                 ]
             );
         } catch (\Exception $e) {

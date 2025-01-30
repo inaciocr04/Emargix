@@ -42,18 +42,15 @@ class AttendanceEvent extends Component
             // Récupérer les étudiants qui correspondent à ces critères
             $students = $query->get();
 
-            // Vérifier si l'étudiant a signé
             foreach ($students as $student) {
-                // Chercher la signature de l'étudiant pour cet événement
-                $signature = StudentSignature::where('student_id', $student->id)
-                    ->whereHas('attendanceForm', function ($query) use ($attendanceForm) {
-                        $query->where('event_id', $attendanceForm->event_id);
-                    })
-                    ->first();
+                // Chercher toutes les signatures de l'étudiant pour cet événement
+                $signatures = $student->signatures()->where('attendance_form_id', $attendanceForm->id)->get();
 
-                // Ajouter l'étudiant et son statut de signature (signé ou absent)
-                $student->signature_status = $signature ? 'Signé' : 'Absent';
+                // Ajouter l'étudiant et son statut de signature
+                $student->signature_status = $signatures->isNotEmpty() ? 'Signé' : 'Absent';
+                $student->signatures_list = $signatures; // Si tu veux utiliser toutes les signatures
             }
+
 
             // Mettre à jour la liste des étudiants
             $this->students = $students;

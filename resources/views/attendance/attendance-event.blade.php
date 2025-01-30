@@ -1,4 +1,6 @@
 <x-app-layout>
+    <h2>Feuille d'émargement : {{$attendanceForm->event_name}}</h2>
+    <h3>De {{$attendanceForm->event_start_hour}} à {{$attendanceForm->event_end_hour}} le {{$attendanceForm->event_date}}</h3>
     <livewire:attendance-event :eventId="$eventId"/>
 
     <!-- Formulaire de signature pour le professeur -->

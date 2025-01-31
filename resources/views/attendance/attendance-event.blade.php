@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout title="Emargement pour {{$attendanceForm->event_name}}">
     <h2>Feuille d'émargement : {{$attendanceForm->event_name}}</h2>
     <h3>De {{$attendanceForm->event_start_hour}} à {{$attendanceForm->event_end_hour}} le {{$attendanceForm->event_date}}</h3>
 
@@ -39,6 +39,15 @@
             <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Soumettre</button>
         </form>
     @endif
+
+    <form action="{{ route('export', ['eventId' => $eventId]) }}" method="GET">
+        <button type="submit" class="bg-blue-600">
+            Exporter la présence
+        </button>
+    </form>
+
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 

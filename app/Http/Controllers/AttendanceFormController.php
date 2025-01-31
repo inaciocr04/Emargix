@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AttendanceExport;
 use App\Models\AttendanceForm;
 use App\Models\Student;
 use App\Models\StudentSignature;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AttendanceFormController extends Controller
@@ -61,7 +63,9 @@ class AttendanceFormController extends Controller
         }
 
         // Passer les résultats à la vue
-        return view('attendance.attendance-event', compact('eventId', 'attendanceForm', 'presentCount', 'absentCount'));
+        return view('attendance.attendance-event',
+            compact('eventId', 'attendanceForm', 'presentCount', 'absentCount')
+        );
     }
 
 

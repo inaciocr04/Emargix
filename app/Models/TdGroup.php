@@ -15,7 +15,7 @@ class TdGroup extends Model
     ];
     public function attendanceForms()
     {
-        return $this->hasMany(AttendanceForm::class, 'training_id');
+        return $this->hasMany(AttendanceForm::class, 'td_group_id');
     }
 
     public function students()

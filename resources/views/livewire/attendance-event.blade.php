@@ -57,10 +57,10 @@
             lengthMenu: [5, 8, 10, 15], // Options de choix de lignes
             language: {
                 "sEmptyTable": "Aucune donnée disponible",
-                "sInfo": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
-                "sInfoEmpty": "Affichage de 0 à 0 sur 0 entrées",
-                "sInfoFiltered": "(filtré de _MAX_ entrées au total)",
-                "sLengthMenu": "Afficher _MENU_ entrées",
+                "sInfo": "Affichage de _START_ à _END_ sur _TOTAL_ étudiants",
+                "sInfoEmpty": "Affichage de 0 à 0 sur 0 étudiants",
+                "sInfoFiltered": "(filtré de _MAX_ étudiants au total)",
+                "sLengthMenu": "Afficher _MENU_ étudiants",
                 "sLoadingRecords": "Chargement...",
                 "sProcessing": "Traitement...",
                 "sSearch": "Rechercher:",

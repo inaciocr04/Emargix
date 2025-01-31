@@ -50,8 +50,8 @@ class AttendanceFormModal extends Component
         if ($attendanceForm) {
             $this->selectedTraining = $attendanceForm->training_id;
             $this->selectedCourse = $attendanceForm->course_id;
-            $this->selectedTdGroup = $attendanceForm->tdgroup_id;
-            $this->selectedTpGroup = $attendanceForm->tpgroup_id;
+            $this->selectedTdGroup = $attendanceForm->td_group_id;
+            $this->selectedTpGroup = $attendanceForm->tp_group_id;
         }
     }
 

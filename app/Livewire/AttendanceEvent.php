@@ -38,6 +38,7 @@ class AttendanceEvent extends Component
             if ($attendanceForm->tp_group_id) {
                 $query->where('tp_group_id', $attendanceForm->tp_group_id);
             }
+
             if ($attendanceForm->td_group_id) {
                 $query->where('td_group_id', $attendanceForm->td_group_id);
             }

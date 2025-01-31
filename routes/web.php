@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttendanceFormController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\StudentSignatureController;
 use App\Http\Controllers\TeacherController;
@@ -43,6 +44,9 @@ Route::post('/teacher/signature/{eventId}', [TeacherSignatureController::class, 
 Route::get('/scan', function () {
     return view('scan'); // La vue contenant le scanner
 })->name('qr.scan');
+
+// Dans routes/web.php
+Route::get('/export-attendance/{eventId}', [ExportController::class, 'export'])->name('export');
 
 
 Route::name('manager.')

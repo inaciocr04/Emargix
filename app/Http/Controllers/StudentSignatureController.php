@@ -97,7 +97,7 @@ class StudentSignatureController extends Controller
         $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signatureBase64));
 
         $user = Auth::user();
-        $userFolder = 'signatures/' . $user->id;
+        $userFolder = 'signatures/students/' . $user->id;
         $filename = uniqid() . '.png';
 
         $path = public_path('storage/' . $userFolder);

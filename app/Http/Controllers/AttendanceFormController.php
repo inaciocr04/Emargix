@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceForm;
+use App\Models\Student;
 use App\Models\StudentSignature;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
@@ -20,10 +21,49 @@ class AttendanceFormController extends Controller
             return redirect()->route('teacher.planning')->with('error', 'Événement non trouvé.');
         }
 
+        // Créer une requête pour récupérer les étudiants en fonction du formulaire d'émargement
+        $query = Student::where('training_id', $attendanceForm->training_id);
 
-        // Passer les signatures à la vue
-        return view('attendance.attendance-event', compact('eventId', 'attendanceForm'));
+        // Ajouter un filtre pour le cours si l'attendanceForm a un course_id
+        if ($attendanceForm->course_id) {
+            $query->where('course_id', $attendanceForm->course_id);
+        }
+
+        // Ajouter un filtre pour le groupe TP si l'attendanceForm a un tp_group_id
+        if ($attendanceForm->tp_group_id) {
+            $query->where('tp_group_id', $attendanceForm->tp_group_id);
+        }
+
+        // Ajouter un filtre pour le groupe TD si l'attendanceForm a un td_group_id
+        if ($attendanceForm->td_group_id) {
+            $query->where('td_group_id', $attendanceForm->td_group_id);
+        }
+
+        // Exécuter la requête pour récupérer les étudiants filtrés
+        $students = $query->get();
+
+        // Récupérer toutes les signatures des étudiants pour ce formulaire d'émargement
+        $signedStudents = StudentSignature::where('attendance_form_id', $attendanceForm->id)
+            ->pluck('student_id')
+            ->toArray();
+
+        // Initialiser les compteurs
+        $presentCount = 0;
+        $absentCount = 0;
+
+        // Parcourir les étudiants filtrés pour déterminer les présents et absents
+        foreach ($students as $student) {
+            if (in_array($student->id, $signedStudents)) {
+                $presentCount++;
+            } else {
+                $absentCount++;
+            }
+        }
+
+        // Passer les résultats à la vue
+        return view('attendance.attendance-event', compact('eventId', 'attendanceForm', 'presentCount', 'absentCount'));
     }
+
 
     public function getAttendanceFormsByTeacher()
     {

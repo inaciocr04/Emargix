@@ -24,10 +24,10 @@ class DataImport implements ToModel, WithHeadingRow
         );
 
         $tdgroup = TdGroup::updateOrCreate(
-            ['name' => $row['groupe td'] ?? 'Groupe inconnu']
+            ['name' => $row['groupe_td'] ?? 'Groupe inconnu']
         );
         $tpgroup = TpGroup::updateOrCreate(
-            ['name' => $row['groupe tp'] ?? 'Groupe inconnu']
+            ['name' => $row['groupe_tp'] ?? 'Groupe inconnu']
         );
 
         try {

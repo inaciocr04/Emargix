@@ -24,7 +24,7 @@ class AttendanceForm extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->HasMany(Student::class);
     }
 
     public function studentSignatures()

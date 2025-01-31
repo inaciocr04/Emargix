@@ -17,8 +17,9 @@ class Student extends Model
         'email',
         'student_statu',
         'training_id',
-        'group_id',
         'course_id',
+        'td_group_id',
+        'tp_group_id',
     ];
 
     public function user(): BelongsTo

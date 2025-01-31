@@ -35,8 +35,11 @@ class AttendanceEvent extends Component
             }
 
             // Ajouter un filtre pour le groupe si l'attendanceForm a un group_id
-            if ($attendanceForm->group_id) {
-                $query->where('group_id', $attendanceForm->group_id);
+            if ($attendanceForm->tp_group_id) {
+                $query->where('tp_group_id', $attendanceForm->tp_group_id);
+            }
+            if ($attendanceForm->td_group_id) {
+                $query->where('td_group_id', $attendanceForm->td_group_id);
             }
 
             // Récupérer les étudiants qui correspondent à ces critères

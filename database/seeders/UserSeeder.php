@@ -30,5 +30,13 @@ class UserSeeder extends Seeder
             'role' => 'teacher'
         ]);
 
+        User::create([
+            'id' => '3',
+            'name' => 'Valérie Bollender',
+            'email' => 'valerie.bollender@unistra.fr',
+            'password' => Hash::make('password'),
+            'role' => 'manager'
+        ]);
+
     }
 }

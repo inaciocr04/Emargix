@@ -47,6 +47,8 @@ Route::get('/scan', function () {
 
 // Dans routes/web.php
 Route::get('/export-attendance/{eventId}', [ExportController::class, 'export'])->name('export');
+Route::get('/export-attendance-pdf/{eventId}', [ExportController::class, 'exportPdf'])->name('export.attendance');
+
 
 
 Route::name('manager.')

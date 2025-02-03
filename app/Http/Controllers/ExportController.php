@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\AttendanceExport;
+use App\Exports\AttendanceExportPdf;
 use App\Models\AttendanceForm;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -19,6 +20,15 @@ class ExportController extends Controller
 
         // Exporter le fichier Excel
         return Excel::download(new AttendanceExport($eventId), $fileName);
+    }
+
+    public function exportPdf($eventId)
+    {
+        // Créer une instance de la classe AttendanceExportPDF et appeler la méthode export
+        $attendanceExportPDF = new AttendanceExportPdf($eventId);
+
+        // Retourner le PDF généré en téléchargement
+        return $attendanceExportPDF->export();
     }
 
 

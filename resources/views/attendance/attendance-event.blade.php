@@ -45,6 +45,11 @@
             Exporter la présence
         </button>
     </form>
+    <form action="{{ route('export.attendance', ['eventId' => $eventId]) }}" method="GET">
+        <button type="submit" class="bg-blue-600">
+            Exporter la présence en pdf
+        </button>
+    </form>
 
 
 

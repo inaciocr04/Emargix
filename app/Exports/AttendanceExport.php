@@ -23,35 +23,30 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     public function collection()
     {
-        // Récupérer l'AttendanceForm correspondant à l'event_id
         $attendanceForm = AttendanceForm::where('event_id', $this->eventId)->first();
 
         if (!$attendanceForm) {
             return collect(); // Aucun formulaire de présence trouvé pour cet event_id
         }
 
-        // Construire la requête pour récupérer les étudiants avec les bons filtres
+        // Récupérer les étudiants
         $query = Student::where('training_id', $attendanceForm->training_id);
 
         if ($attendanceForm->course_id) {
             $query->where('course_id', $attendanceForm->course_id);
         }
-
         if ($attendanceForm->tp_group_id) {
             $query->where('tp_group_id', $attendanceForm->tp_group_id);
         }
-
         if ($attendanceForm->td_group_id) {
             $query->where('td_group_id', $attendanceForm->td_group_id);
         }
 
-        // Retourner les étudiants
         return $query->get();
     }
 
     public function headings(): array
     {
-        // Définir les en-têtes pour la feuille Excel
         return [
             'Nom', 'Prénom', 'Formation', 'Parcours', 'Groupe de TD', 'Groupe de TP', 'Statut de signature', 'Signature'
         ];
@@ -59,16 +54,13 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     public function map($student): array
     {
-        // Récupérer les informations de signature de l'étudiant
         $attendanceForm = AttendanceForm::where('event_id', $this->eventId)->first();
         $studentSignature = $student->signatures()->where('attendance_form_id', $attendanceForm->id)->first();
 
-        // Vérifier si l'étudiant a signé et son statut
         $isSigned = $studentSignature !== null;
         $isAbsent = $student->student_statu == 'Absent';
         $isPresent = $student->student_statu == 'Present';
 
-        // On retourne les données de l'étudiant, avec un champ pour la signature à ajouter plus tard
         return [
             $student->lastname, // Nom
             $student->firstname, // Prénom
@@ -107,12 +99,11 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
                     $sheet->setCellValue('A2', 'Nom de l\'événement : ' . $attendanceForm->event_name);
                     $sheet->setCellValue('A3', 'Horaire : ' . $attendanceForm->event_start_hour . ' - ' . $attendanceForm->event_end_hour);
                     $sheet->setCellValue('A4', 'Date : ' . $attendanceForm->event_date);
-                    $sheet->setCellValue('A4', 'Signature de l\'enseignant : ' . $attendanceForm->signature_teacher);
                 }
 
                 // Ajouter les images des signatures pour chaque étudiant
                 $sheet = $event->sheet;
-                $row = 6; // À partir de la ligne 5, où commencent les données des étudiants
+                $row = 6; // À partir de la ligne 6, où commencent les données des étudiants
                 $students = $this->collection();
 
                 foreach ($students as $student) {

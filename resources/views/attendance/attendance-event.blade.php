@@ -6,6 +6,7 @@
     <p><strong>Nombre d'absents : </strong>{{ $absentCount }}</p>
     <p>Nombre de présents : {{ $presentCount }}</p>
     <livewire:attendance-event :eventId="$eventId"/>
+    <livewire:attendance-access :eventId="$eventId"/>
 
     <!-- Formulaire de signature pour le professeur -->
 

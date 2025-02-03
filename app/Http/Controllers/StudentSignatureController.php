@@ -79,8 +79,8 @@ class StudentSignatureController extends Controller
             return redirect()->back()->with('error', 'Formulaire introuvable.');
         }
 
-        if ($attendanceForm->signature_teacher) {
-            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a déjà signé.');
+        if ($attendanceForm->access == 1) {
+            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accés.');
         }
 
         // Vérifier si l'étudiant a déjà signé

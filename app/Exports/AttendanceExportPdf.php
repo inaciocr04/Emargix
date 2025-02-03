@@ -38,7 +38,7 @@ class AttendanceExportPdf
             $query->where('td_group_id', $attendanceForm->td_group_id);
         }
 
-        $students = $query->get();
+        $students = $query->orderBy('lastname', 'ASC')->get();
 
         // Récupérer toutes les signatures d'étudiants pour ce formulaire de présence
         $studentSignatures = StudentSignature::where('attendance_form_id', $attendanceForm->id)->get();

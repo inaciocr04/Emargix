@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('td_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('tp_group_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('course_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->boolean('access')->default(0);
             $table->timestamps();
         });
     }

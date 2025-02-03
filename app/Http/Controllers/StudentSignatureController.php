@@ -34,6 +34,10 @@ class StudentSignatureController extends Controller
             return redirect()->route('qr.scan')->with('error', 'L\'émargement n\'est pas possible. Token invalide.');
         }
 
+        if ($attendanceForm->access) {
+            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accès.');
+        }
+
         // Vérifier si l'utilisateur est connecté
         $user = Auth::user();
         if (!$user) {
@@ -79,8 +83,8 @@ class StudentSignatureController extends Controller
             return redirect()->back()->with('error', 'Formulaire introuvable.');
         }
 
-        if ($attendanceForm->access == 1) {
-            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accés.');
+        if ($attendanceForm->access) {
+            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accès.');
         }
 
         // Vérifier si l'étudiant a déjà signé

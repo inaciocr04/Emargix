@@ -42,7 +42,7 @@ Route::post('/teacher/signature/{eventId}', [TeacherSignatureController::class, 
 
 
 Route::get('/scan', function () {
-    return view('scan'); // La vue contenant le scanner
+    return view('student.scan');
 })->name('qr.scan');
 
 // Dans routes/web.php

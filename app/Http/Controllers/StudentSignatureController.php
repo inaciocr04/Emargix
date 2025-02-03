@@ -35,7 +35,7 @@ class StudentSignatureController extends Controller
         }
 
         if ($attendanceForm->access) {
-            return redirect()->route('dashboard')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accès.');
+            return redirect()->route('qr.scan')->with('error', 'Vous ne pouvez plus signer ce formulaire car le professeur a coupé l\'accès.');
         }
 
         // Vérifier si l'utilisateur est connecté

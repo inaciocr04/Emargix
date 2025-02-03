@@ -14,17 +14,13 @@ class TeacherController extends Controller
 
     public function showPlanning()
     {
-        // Créer une instance de ApiController
         $apiController = new ApiController();
 
-        // Récupérer le sessionId
         $sessionId = $apiController->connect();
         $apiController->setProject(7);
-        // Appeler la méthode PlanningProf pour récupérer les événements
         $events = $apiController->getPlanningProf($sessionId);
-        // Vérifier si on a des événements
+
         if (empty($events)) {
-            // Aucun événement trouvé, on peut envoyer un tableau vide
             $events = [];
         }
 

@@ -68,15 +68,17 @@
                             <li>{{ $classroom }}</li>
                                 @endforeach
                         </ul>
-
-@if ($eventDate->isToday() && $now >= $startHour && $now <= $endHour)
-                                <form action="{{ route('attendance.generateQrCode', ['eventId' => $event['id']]) }}" method="GET">
-                                    @csrf
-                                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">Générer le QR Code</button>
-                                </form>
+                            @if ($eventDate->isToday() && $now >= \Carbon\Carbon::parse($startHour)->subMinutes(5) && $now <= $endHour)
+                            <form action="{{ route('attendance.generateQrCode', ['eventId' => $event['id']]) }}" method="GET">
+                            @csrf
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+                                Générer le QR Code
+                            </button>
+                        </form>
                             @else
-                                <p class="text-gray-500">Événement hors de portée ou non aujourd'hui.</p>
-                            @endif
+                            <p class="text-gray-500">Événement hors de portée ou non aujourd'hui.</p>
+                           @endif
+
                         </div>
                     @endforeach
                 </div>

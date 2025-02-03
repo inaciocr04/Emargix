@@ -1,5 +1,20 @@
-@php use App\Models\StudentSignature; @endphp
-<!DOCTYPE html>
+@php
+    use App\Models\StudentSignature;
+
+    // Filtrer les étudiants par statut avec variantes
+    $traditionalStatuses = ['traditionnel', 'traditionnelle', 'Traditionel', 'Traditionelle']; // Ajouter toutes les variantes possibles
+    $alternatingStatuses = ['alternant', 'alternante', 'Alternant', 'Alternante']; // Ajouter toutes les variantes possibles
+
+    $traditionalStudents = $students->filter(function($student) use ($traditionalStatuses) {
+        return in_array(strtolower($student->student_statu), array_map('strtolower', $traditionalStatuses));
+    });
+
+    $alternatingStudents = $students->filter(function($student) use ($alternatingStatuses) {
+        return in_array(strtolower($student->student_statu), array_map('strtolower', $alternatingStatuses));
+    });
+@endphp
+
+    <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -50,24 +65,24 @@
     </div>
 </div>
 
-
+<!-- Tableau pour les étudiants traditionnels -->
+<h2>Étudiants Traditionnels</h2>
 <table>
     <thead>
     <tr>
         <th>Nom</th>
         <th>Prénom</th>
+        <th>Status</th>
         <th>Formation</th>
         <th>Parcours</th>
         <th>Groupe de TD</th>
         <th>Groupe de TP</th>
         <th>Statut de signature</th>
-        <th>Absent</th>
-        <th>Présent</th>
         <th>Signature</th>
     </tr>
     </thead>
     <tbody>
-    @foreach ($students as $student)
+    @foreach ($traditionalStudents as $student)
         @php
             // Récupérer la signature encodée en base64 pour cet étudiant
             $signatureStudentData = $studentSignaturesData[$student->id] ?? null;
@@ -75,6 +90,7 @@
         <tr>
             <td>{{ $student->lastname }}</td>
             <td>{{ $student->firstname }}</td>
+            <td>{{ $student->student_statu }}</td>
             <td>{{ $student->training->name ?? 'N/A' }}</td>
             <td>{{ $student->course->name ?? 'N/A' }}</td>
             <td>{{ $student->td_group->name ?? 'N/A' }}</td>
@@ -85,10 +101,56 @@
                 @else
                     Absent
                 @endif
-
             </td>
-            <td>{{ $student->student_statu == 'Absent' ? '✔' : '' }}</td>
-            <td>{{ $student->student_statu == 'Present' ? '✔' : '' }}</td>
+            <td>
+                @if($signatureStudentData)
+                    <img src="{{ $signatureStudentData }}" alt="Signature" style="width: 50px; height: auto;">
+                @else
+                    Aucune signature
+                @endif
+            </td>
+        </tr>
+    @endforeach
+    </tbody>
+</table>
+
+<!-- Tableau pour les étudiants alternants -->
+<h2>Étudiants Alternants</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Status</th>
+        <th>Formation</th>
+        <th>Parcours</th>
+        <th>Groupe de TD</th>
+        <th>Groupe de TP</th>
+        <th>Statut de signature</th>
+        <th>Signature</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach ($alternatingStudents as $student)
+        @php
+            // Récupérer la signature encodée en base64 pour cet étudiant
+            $signatureStudentData = $studentSignaturesData[$student->id] ?? null;
+        @endphp
+        <tr>
+            <td>{{ $student->lastname }}</td>
+            <td>{{ $student->firstname }}</td>
+            <td>{{ $student->student_statu }}</td>
+            <td>{{ $student->training->name ?? 'N/A' }}</td>
+            <td>{{ $student->course->name ?? 'N/A' }}</td>
+            <td>{{ $student->td_group->name ?? 'N/A' }}</td>
+            <td>{{ $student->tp_group->name ?? 'N/A' }}</td>
+            <td>
+                @if($signatureStudentData)
+                    Présent
+                @else
+                    Absent
+                @endif
+            </td>
             <td>
                 @if($signatureStudentData)
                     <img src="{{ $signatureStudentData }}" alt="Signature" style="width: 50px; height: auto;">

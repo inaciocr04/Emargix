@@ -43,27 +43,39 @@ class AttendanceExportPdf
         // Récupérer toutes les signatures d'étudiants pour ce formulaire de présence
         $studentSignatures = StudentSignature::where('attendance_form_id', $attendanceForm->id)->get();
 
-        // 🔹 Récupérer et convertir la signature du professeur en base64
         $signatureTeacherData = null;
         $signatureRelativePath = str_replace('storage/', '', $attendanceForm->signature_teacher);
-        $signatureFullPath = storage_path('app/public/' . $signatureRelativePath);
 
-        if (file_exists($signatureFullPath)) {
+        // Utiliser public_path() pour obtenir le chemin dans le répertoire public
+        $signatureFullPath = public_path('storage/' . $signatureRelativePath);
+
+        if (file_exists($signatureFullPath) && is_file($signatureFullPath)) {
             $signatureTeacherData = 'data:image/png;base64,' . base64_encode(file_get_contents($signatureFullPath));
+        } else {
+            return redirect()->back()->with('error', 'Le fichier de signature du professeur est introuvable. Veuillez contacter le support.');
         }
+
+
+
 
         $studentSignaturesData = [];
         foreach ($studentSignatures as $signature) {
             $signatureData = null;
             $signatureRelativePathStudent = str_replace('storage/', '', $signature->signature);
-            $signatureFullPathStudent = storage_path('app/public/' . $signatureRelativePathStudent);
 
-            if (file_exists($signatureFullPathStudent)) {
+            // Utiliser public_path() pour générer le chemin absolu correct dans le répertoire public
+            $signatureFullPathStudent = public_path('storage/' . $signatureRelativePathStudent);
+
+            if (file_exists($signatureFullPathStudent) && is_file($signatureFullPathStudent)) {
                 $signatureData = 'data:image/png;base64,' . base64_encode(file_get_contents($signatureFullPathStudent));
+            } else {
+                return redirect()->back()->with('error', 'Le fichier de signature d\'un étudiant est introuvable. Veuillez contacter le support.');
             }
 
             $studentSignaturesData[$signature->student_id] = $signatureData;
         }
+
+
 
         // Générer le PDF
         $pdf = Pdf::loadView('exports.attendance_pdf', [

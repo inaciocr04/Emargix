@@ -41,6 +41,8 @@
         </form>
     @endif
 
+    @if($attendanceForm->signature_teacher)
+
     <form action="{{ route('export', ['eventId' => $eventId]) }}" method="GET">
         <button type="submit" class="bg-blue-600">
             Exporter la présence
@@ -51,6 +53,10 @@
             Exporter la présence en pdf
         </button>
     </form>
+    @else
+        <p><strong>Information :</strong> Si vous voulez exporter votre feuille d'émargement veuillez d'abord signez la feuille</p>
+    @endif
+
 
 
 
